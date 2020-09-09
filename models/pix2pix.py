@@ -1,4 +1,5 @@
 
+
 import tensorflow as tf
 
 from tensorflow.keras import layers
@@ -186,7 +187,3 @@ class Discriminator(tf.keras.Model):
         x = self.last(x)  # (bs, 30, 30, 1)
 
         return x
-
-
-if __name__ == "__main__":
-    print("yes")

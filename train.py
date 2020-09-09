@@ -32,7 +32,7 @@ if __name__ == "__main__":
     test_dataset = test_dataset.map(load_image_test)
     test_dataset = test_dataset.batch(BATCH_SIZE)
 
-    EPOCHS = 150
+    EPOCHS = 200
 
     today = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     # Checkpoint name

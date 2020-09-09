@@ -41,7 +41,7 @@ class ModelCompiler(object):
         self.generator.build(input_shape=(self.batch_size, 256, 256, 3))
         self.generator.summary()
 
-        print("\n############################ Discriminator ############################\n")
+        print("\n\n############################ Discriminator ############################\n")
         self.discriminator = Discriminator()
         self.discriminator.build(input_shape=[(self.batch_size, 256, 256, 3), (self.batch_size, 256, 256, 3)])
         self.discriminator.summary()
@@ -109,6 +109,7 @@ class ModelCompiler(object):
             # Save image
             for example_input, example_target in self.test_dataset.take(1):
                 self.generate_and_save_images(example_input, example_target, epoch_done=epoch_idx)
+
 
             ###################
             ### TensorBoard ###
