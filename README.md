@@ -32,3 +32,16 @@
     ```
     python train.py
     ```
+2. 查看 TensorBoard
+    ```
+    tensorboard --logdir results --port 8008
+    ```   
+   透過瀏覽器輸入
+    ```
+    http://localhost:8008/
+    ```
+   
+3. 訓練完成後，進行 Inference
+    ```
+    python test.py --load_model_path <YOUR_MODEL_PATH>
+    ```   
