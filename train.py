@@ -15,20 +15,20 @@ if __name__ == "__main__":
     #                                       origin=_URL,
     #                                       extract=True)
 
-    PATH = os.path.join("dataset", 'facades/')
+    dataset_path = os.path.join("dataset", 'facades/')
 
     BUFFER_SIZE = 400
     BATCH_SIZE = 1
 
     # Training dataset
-    train_dataset = tf.data.Dataset.list_files(PATH + 'train/*.jpg')
+    train_dataset = tf.data.Dataset.list_files(dataset_path + 'train/*.jpg')
     train_dataset = train_dataset.map(load_image_train,
                                       num_parallel_calls=tf.data.experimental.AUTOTUNE)
     train_dataset = train_dataset.shuffle(BUFFER_SIZE)
     train_dataset = train_dataset.batch(BATCH_SIZE)
 
     # Test dataset
-    test_dataset = tf.data.Dataset.list_files(PATH + 'test/*.jpg')
+    test_dataset = tf.data.Dataset.list_files(dataset_path + 'test/*.jpg')
     test_dataset = test_dataset.map(load_image_test)
     test_dataset = test_dataset.batch(BATCH_SIZE)
 

@@ -14,17 +14,17 @@ if __name__ == "__main__":
     parser.add_argument("--load_model_path", type=str, default=r"YOUR_MODEL_PATH", help="model path")
     args = parser.parse_args()
 
-    PATH = os.path.join("dataset", 'facades/')
+    dataset_path = os.path.join("dataset", 'facades/')
 
     BUFFER_SIZE = 400
     BATCH_SIZE = 1
 
     # Test dataset
-    test_dataset = tf.data.Dataset.list_files(PATH + 'test/*.jpg')
+    test_dataset = tf.data.Dataset.list_files(dataset_path + 'test/*.jpg')
     test_dataset = test_dataset.map(load_image_test)
     test_dataset = test_dataset.batch(BATCH_SIZE)
 
-    # Training configuration & hyper-parameters
+    # Test configuration & hyper-parameters
     test_configuration = {
 
         "load_model_path": args.load_model_path,
