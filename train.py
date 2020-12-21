@@ -36,7 +36,7 @@ if __name__ == "__main__":
 
     today = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     # Checkpoint name
-    save_ckpt_name = f"{today}_pix2pix"
+    save_ckpt_name = f"{today}_Pix2Pix"
 
     # Training configuration & hyper-parameters
     training_configuration = {
@@ -47,7 +47,6 @@ if __name__ == "__main__":
         "test_dataset": test_dataset,
 
         "save_ckpt_in_path": save_ckpt_name,
-        "tensorboard_path": os.path.join("tf_log", save_ckpt_name),
 
     }
 

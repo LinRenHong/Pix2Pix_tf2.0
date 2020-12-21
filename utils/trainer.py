@@ -20,7 +20,6 @@ class ModelCompiler(object):
         self.epochs = kwargs.get("epochs", None)
 
         self.save_ckpt_name = kwargs.get("save_ckpt_in_path", None)
-        self.tb_log_path = kwargs.get("tensorboard_path", None)
 
         # Training dataset
         self.train_dataset = kwargs.get("train_dataset", None)
@@ -33,13 +32,22 @@ class ModelCompiler(object):
             self.test_dataset_size = tf.data.experimental.cardinality(self.test_dataset).numpy()
 
         self.results_dir = "results"
-        self.save_images_dir = os.path.join(self.results_dir, "images")
-        self.save_models_dir = os.path.join(self.results_dir, "saved_models")
+        if self.save_ckpt_name is not None:
+            self.save_ckpt_path = os.path.join(self.results_dir, self.save_ckpt_name)
+            self.save_images_dir = os.path.join(self.save_ckpt_path, "images")
+            self.save_models_dir = os.path.join(self.save_ckpt_path, "saved_models")
 
         print("\n############################ Generator ############################\n")
         self.generator = Generator()
         self.generator.build(input_shape=(self.batch_size, 256, 256, 3))
         self.generator.summary()
+
+        # If has pretained model
+        self.load_model_path = kwargs.get("load_model_path", None)
+        if self.load_model_path is not None:
+            print("Loading model...")
+            self.generator.load_weights(self.load_model_path)
+            print("Success!")
 
         print("\n\n############################ Discriminator ############################\n")
         self.discriminator = Discriminator()
@@ -49,21 +57,17 @@ class ModelCompiler(object):
         self.generator_optimizer = tfa.optimizers.Lookahead(tfa.optimizers.RectifiedAdam(2e-4, beta_1=0.5))
         self.discriminator_optimizer = tfa.optimizers.Lookahead(tfa.optimizers.RectifiedAdam(2e-4, beta_1=0.5))
 
+        self.writer = None
+
         os.makedirs(self.results_dir, exist_ok=True)
-        os.makedirs(self.save_images_dir, exist_ok=True)
-        os.makedirs(self.save_models_dir, exist_ok=True)
 
     def train(self):
 
-        os.makedirs(os.path.join(self.save_models_dir, "%s" % self.save_ckpt_name), exist_ok=True)
-        os.makedirs(os.path.join(self.save_images_dir, "%s" % self.save_ckpt_name), exist_ok=True)
-
-        self.writer = tf.summary.create_file_writer(os.path.join(self.results_dir, self.tb_log_path) + "/train")
+        self.writer = tf.summary.create_file_writer(self.save_ckpt_path)
+        os.makedirs(self.save_images_dir)
+        os.makedirs(self.save_models_dir)
 
         for epoch_idx in range(1, self.epochs + 1):
-
-            # for example_input, example_target in self.test_dataset.take(1):
-            #     generate_images(generator, example_input, example_target)
 
             # Use metrics to storage log history
             gen_total_loss_metrics = tf.keras.metrics.Mean("gen_total_loss")
@@ -150,21 +154,26 @@ class ModelCompiler(object):
 
         return gen_total_loss, gen_gan_loss, gen_l1_loss, disc_loss
 
+    def test(self):
+
+        for example_input, example_target in self.test_dataset.take(1):
+            self.generate_and_save_images(example_input, example_target, epoch_done=None)
+
     def save_model(self, epoch_done):
 
         # Save models checkpoints
-        if epoch_done % 5 == 0:
+        if epoch_done % 1 == 0:
             print("\nSave models to [%s] at %d epoch\n" % (self.save_ckpt_name, epoch_done))
-
-            final_save_model_path = "%s/%s/pix2pix_generator_%s" % (self.save_models_dir, self.save_ckpt_name, epoch_done)
-            self.generator.save_weights(final_save_model_path + ".h5")
+            self.generator.save_weights(
+                os.path.join(self.save_models_dir, f"epoch_{epoch_done}.h5")
+            )
 
         # Save latest models
         if epoch_done == self.epochs:
             print("\nSave latest models to [%s]\n" % self.save_ckpt_name)
-
-            final_save_model_path = "%s/%s/pix2pix_generator_%s" % (self.save_models_dir, self.save_ckpt_name, self.epochs)
-            self.generator.save_weights(final_save_model_path + ".h5")
+            self.generator.save_weights(
+                os.path.join(self.save_models_dir, f"latest.h5")
+            )
 
     def write_to_tensorboard(self, data_dict, epoch_done, condition):
 
@@ -180,7 +189,7 @@ class ModelCompiler(object):
         else:
             print("Writer is None!")
 
-    def generate_and_save_images(self, test_input, tar, epoch_done):
+    def generate_and_save_images(self, test_input, tar, epoch_done=None):
 
         prediction = self.generator(test_input, training=False)
         plt.figure(figsize=(15, 15))
@@ -191,10 +200,15 @@ class ModelCompiler(object):
         for i in range(3):
             plt.subplot(1, 3, i + 1)
             plt.title(title[i])
+
             # getting the pixel values between [0, 1] to plot it.
             plt.imshow(display_list[i] * 0.5 + 0.5)
             plt.axis('off')
 
-        final_save_image_path = "%s/%s/epoch_%s" % (self.save_images_dir, self.save_ckpt_name, epoch_done)
-        plt.savefig(final_save_image_path + ".png")
-        plt.close('all')
+        if epoch_done is not None:
+            final_save_image_path = os.path.join(self.save_images_dir, f"epoch_{epoch_done}")
+            plt.savefig(final_save_image_path + ".png")
+            plt.close('all')
+        else:
+            plt.savefig(os.path.join(self.results_dir, "inference.png"))
+            plt.close('all')

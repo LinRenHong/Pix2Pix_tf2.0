@@ -89,6 +89,7 @@ class Generator(tf.keras.Model):
                                            padding='same',
                                            kernel_initializer=initializer)
 
+    @tf.function
     def call(self, x, training=None):
         # x shape == (bs, 256, 256, 3)
         x1 = self.down1(x, training=training)  # (bs, 128, 128, 64)
