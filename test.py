@@ -2,7 +2,6 @@
 
 import os
 import argparse
-import datetime
 import tensorflow as tf
 
 from utils.utils import load_image_test
@@ -25,14 +24,8 @@ if __name__ == "__main__":
     test_dataset = test_dataset.map(load_image_test)
     test_dataset = test_dataset.batch(BATCH_SIZE)
 
-    EPOCHS = 200
-
-    today = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    # Checkpoint name
-    save_ckpt_name = f"{today}_Pix2Pix"
-
     # Training configuration & hyper-parameters
-    training_configuration = {
+    test_configuration = {
 
         "load_model_path": args.load_model_path,
         "batch_size": BATCH_SIZE,
@@ -40,5 +33,5 @@ if __name__ == "__main__":
 
     }
 
-    trainer = ModelCompiler(**training_configuration)
+    trainer = ModelCompiler(**test_configuration)
     trainer.test()
