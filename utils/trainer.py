@@ -191,7 +191,8 @@ class ModelCompiler(object):
 
     def generate_and_save_images(self, test_input, tar, epoch_done=None):
 
-        prediction = self.generator(test_input, training=False)
+        prediction = self.generator(test_input, training=True)
+        print(prediction)
         plt.figure(figsize=(15, 15))
 
         display_list = [test_input[0], tar[0], prediction[0]]
