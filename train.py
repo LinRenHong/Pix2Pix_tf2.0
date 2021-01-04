@@ -6,6 +6,7 @@ import tensorflow as tf
 
 from utils.utils import load_image_train, load_image_test
 from utils.trainer import ModelCompiler
+from utils.tf_utils import allow_memory_growth
 
 
 if __name__ == "__main__":
@@ -14,6 +15,8 @@ if __name__ == "__main__":
     # path_to_zip = tf.keras.utils.get_file('facades.tar.gz',
     #                                       origin=_URL,
     #                                       extract=True)
+
+    allow_memory_growth()
 
     dataset_path = os.path.join("dataset", 'facades/')
 
